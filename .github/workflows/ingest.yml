@@ -1,0 +1,23 @@
+name: eClear Global Ingestor
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - run: pip install requests
+      - name: Run Ingestor
+        env:
+          SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
+        run: python ingestor_v2.py
+      - name: Push Results
+        run: |
+          git config --global user.name 'eClear-Bot'
+          git config --global user.email 'bot@eclear.app'
+          git add global_leads.json
+          git commit -m "Global Update" || exit 0
+          git push

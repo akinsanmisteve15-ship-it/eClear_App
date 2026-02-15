@@ -1,0 +1,306 @@
+/* 1. THE FOUNDATION - FORCED UNLOCK */
+html {
+    height: -webkit-fill-available;
+    overflow-x: hidden;
+}
+
+body {
+    background-color: var(--bg-stage);
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    /* This is the key: auto allows the content to dictate height */
+    overflow-y: auto !important; 
+    height: auto !important; 
+    min-height: 100vh;
+    font-family: sans-serif;
+    -webkit-overflow-scrolling: touch; /* Smooth inertia scroll for iOS */
+}
+
+/* 2. THE SIDEBAR */
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 280px;
+    height: 100vh;
+    z-index: 1; 
+    padding: 20px 22px;
+    display: flex;
+    flex-direction: column;
+    
+    /* THE ADAPTIVE GLASS */
+    background-color: var(--bg-stage); 
+    backdrop-filter: blur(25px) saturate(180%);
+    -webkit-backdrop-filter: blur(25px) saturate(180%);
+    
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    box-sizing: border-box;
+}
+
+.nav-links-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: auto;
+}
+
+.side-link {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 14px 18px;
+    text-decoration: none;
+    color: var(--text-main);
+    border-radius: 16px;
+    margin-bottom: 4px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Smooth hover transition */
+
+    /* Subtle glass effect */
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.side-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateX(5px);
+
+    .side-link.active {
+        background: rgba(255, 140, 0, 0.15);
+        border-color: var(--brand-orange);
+        color: var(--brand-orange);
+    }
+}
+
+.side-link img {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+}
+.side-link.logout {
+    margin-top: 20px;
+    background: rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(255, 68, 68, 0.1);
+    color: #ff4444;
+}
+
+.side-link.logout:hover {
+    background: rgba(0, 0, 0, 0.15);
+    border-color: #ff4444;
+}
+
+
+/* 3. THE APP SHELL - DYNAMIC HEIGHT */
+#appShell {
+    position: relative;
+    z-index: 2;
+    background: #000;
+    /* min-height ensures it stretches with your content/landmarks */
+    min-height: 100vh; 
+    width: 100%;
+    box-sizing: border-box;
+    will-change: transform; 
+    backface-visibility: hidden;
+    transform-origin: left center;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    /* Prevent clipping so content can flow down */
+    overflow: visible !important; 
+}
+
+/* 4. THE TRANSFORMATION */
+body.menu-open {
+    overflow: hidden !important; /* Lock only when sidebar is open */
+    height: 100vh !important;
+}
+
+/* When menu is open, slide the nav down */
+body.menu-open .bottom-nav {
+    transform: translateY(100%); 
+    transition: transform 0.4s ease;
+}
+
+/* Ensure the nav has a transition normally */
+.bottom-nav {
+    transition: transform 0.4s ease;
+}
+
+body.menu-open #appShell {
+    transform: translateX(280px) scale(0.65);
+    border-radius: 40px;
+    overflow: hidden !important; /* Ensure no content spills out during transform */
+    -webkit-mask-image: -webkit-radial-gradient(white, black); /* Smooth edges on iOS */
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: -20px 0 50px rgba(0, 0, 0, 0.3);
+    pointer-events: auto;
+}
+
+/* 5. HEADER */
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+}
+
+.menu-trigger {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+}
+
+/* 6. PILLAR SYSTEM - 3D ORANGE THEME */
+.pillar-scroll {
+    display: flex;
+    gap: 20px;
+    padding: 30px 15px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+.pillar-scroll::-webkit-scrollbar { display: none; }
+
+.pillar-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 110px;
+    cursor: pointer;
+    transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.icon-box {
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.icon-box img {
+    width: 80px; 
+    height: 80px;
+    object-fit: contain;
+    filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3));
+    transition: all 0.5s ease;
+}
+
+/* 3D ACTIVE STATE (ORANGE GLOW) */
+.pillar-item.active .icon-box img {
+    transform: scale(1.15) translateY(-10px);
+    filter: drop-shadow(0 15px 25px rgba(255, 140, 0, 0.5));
+}
+
+.pillar-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.6);
+    margin-top: 8px;
+    text-align: center;
+}
+
+.active-indicator {
+    width: 20px;
+    height: 3px;
+    background: transparent;
+    border-radius: 10px;
+    margin-top: 6px;
+    transition: 0.3s;
+}
+
+.pillar-item.active .pillar-label { color: #FF8C00; font-weight: bold; }
+.pillar-item.active .active-indicator { 
+    background: linear-gradient(135deg, #FFB347 0%, #FF8C00 100%); 
+    width: 40px; 
+    box-shadow: 0 4px 10px rgba(255, 140, 0, 0.4);
+}
+
+/* 7. NAVIGATION - BRAND ORANGE FILTERS */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 75px;
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 1000;
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 100%;
+    opacity: 0.4;
+    transition: all 0.3s ease;
+}
+
+.nav-item.active { opacity: 1; }
+
+.nav-item img {
+    width: 26px; 
+    height: 26px;
+    object-fit: contain;
+    margin-bottom: 5px;
+    filter: invert(1) opacity(0.5); 
+}
+
+/* ACTIVE NAV: Orange Glow Filter (Replaced Blue) */
+.nav-item.active img {
+    transform: scale(1.15);
+    /* Pure Brand Orange Filter */
+    filter: invert(56%) sepia(90%) saturate(1500%) hue-rotate(5deg) brightness(102%) contrast(105%);
+}
+
+.nav-item span {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+/* 8. ACTIVITY PANEL */
+#right-panel {
+    position: fixed;
+    top: 0;
+    right: -400px;
+    width: 380px;
+    height: 100vh;
+    background: #000;
+    z-index: 10001;
+    display: flex;
+    flex-direction: column;
+    padding: 30px 20px;
+    box-sizing: border-box;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: -10px 0 40px rgba(0,0,0,0.9);
+}
+
+#right-panel.active { transform: translateX(-400px); }
+
+.tab.active { 
+    background: linear-gradient(135deg, #FFB347 0%, #FF8C00 100%); 
+    color: white; 
+    box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
+}
+
+/* 9. INDIVIDUAL ICON TUNING */
+.pillar-item img[alt="Events"] { width: 80px; height: 80px; }
+.pillar-item img[alt="Taxi"] { width: 110px; height: 110px; }
+.pillar-item img[alt="Logistics"] { width: 130px; height: 130px; }
+.pillar-item img[alt="Rent a Car"] { width: 140px; height: 140px; }
+.pillar-item img[alt="Food"] { width: 110px; height: 110px; }
+.pillar-item img[alt="Pro Services"] { width: 110px; height: 110px; }

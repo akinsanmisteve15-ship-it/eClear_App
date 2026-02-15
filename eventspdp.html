@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' data: https:; connect-src 'self' ws://127.0.0.1:* http://127.0.0.1:* https://ipapi.co; font-src 'self' data: https:; img-src 'self' data: https: blob:;">
+    <title>eClear | Event Details</title>
+    <style>
+        :root {
+            --glass-orange: linear-gradient(135deg, #FF9500 0%, #FF5E00 100%);
+            --orange-glow: rgba(255, 149, 0, 0.4);
+            
+            /* System Theme Adapters */
+            --bg-color: #080808;
+            --text-main: #FFFFFF;
+            --text-secondary: #AAAAAA;
+            --surface: rgba(255, 255, 255, 0.05);
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --bg-color: #FFFFFF;
+                --text-main: #000000;
+                --text-secondary: #555555;
+                --surface: rgba(0, 0, 0, 0.05);
+            }
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-color);
+            color: var(--text-main);
+            overflow-x: hidden;
+            padding-bottom: 120px; /* Space for slider */
+        }
+
+        /* --- SURGICAL CUT POSTER --- */
+        .hero-container {
+            position: relative;
+            width: 100%;
+            height: 450px;
+            background: var(--dynamic-bg, #1a1a1a); /* Chameleon Backing */
+        }
+
+        .poster-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            /* The surgical diagonal cut at bottom-right */
+            clip-path: polygon(0 0, 100% 0, 100% 88%, 82% 100%, 0 100%);
+            overflow: hidden;
+        }
+
+        .poster-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .top-actions {
+            position: absolute;
+            top: 40px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-sizing: border-box;
+            z-index: 10;
+        }
+
+        .glass-icon {
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 149, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 149, 0, 0.3);
+            color: #FF9500;
+            font-size: 20px;
+            box-shadow: 0 4px 15px var(--orange-glow);
+        }
+
+        /* --- CONTENT AREA --- */
+        .content {
+            padding: 30px 24px;
+        }
+
+        .event-header h1 {
+            font-size: 28px;
+            margin: 0;
+            font-weight: 800;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: #FFD700;
+            color: #000;
+            font-size: 10px;
+            font-weight: 900;
+            padding: 4px 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            text-transform: uppercase;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            margin: 30px 0;
+            gap: 20px;
+        }
+
+        .info-item label {
+            display: block;
+            font-size: 10px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .info-item span {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .description-block {
+            margin-bottom: 30px;
+        }
+
+        .description-block h2 {
+            font-size: 14px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .description-block p {
+            font-size: 15px;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+
+        /* --- 3D GLASSY ORANGE SLIDER --- */
+        .payment-dock {
+            position: fixed;
+            bottom: 30px;
+            left: 20px;
+            right: 20px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            padding: 0 8px;
+            z-index: 100;
+        }
+
+        .slider-track-text {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-main);
+            pointer-events: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .slider-handle {
+            width: 56px;
+            height: 56px;
+            background: var(--glass-orange);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px var(--orange-glow);
+            cursor: pointer;
+            position: relative;
+            z-index: 2;
+        }
+
+        .slider-handle::after {
+            content: '→';
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="hero-container">
+    <div id="chameleonBacking" class="chameleon-layer"></div>
+    
+    <<div class="top-actions">
+    <div class="glass-icon" onclick="window.history.back()" style="cursor: pointer;">←</div>
+    <div class="glass-icon">♥️</div>
+</div>
+
+<div style="padding: 20px 24px 0; display: flex; justify-content: space-between; align-items: center;">
+    <div style="display: flex; align-items: center; gap: 8px;">
+        <div style="display: flex; -webkit-mask-image: linear-gradient(to right, black 70%, transparent);">
+            <div style="width: 24px; height: 24px; border-radius: 50%; background: #444; border: 2px solid var(--bg-color); margin-right: -10px;"></div>
+            <div style="width: 24px; height: 24px; border-radius: 50%; background: #666; border: 2px solid var(--bg-color); margin-right: -10px;"></div>
+            <div style="width: 24px; height: 24px; border-radius: 50%; background: #888; border: 2px solid var(--bg-color);"></div>
+        </div>
+        <span style="font-size: 12px; font-weight: 700; opacity: 0.8;"><span id="attendingCount">128</span> Attending</span>
+    </div>
+    <div id="heroDate" style="font-size: 11px; font-weight: 900; letter-spacing: 1px; color: var(--brand-orange); text-transform: uppercase;">
+        FEB 14, 2026
+    </div>
+</div>
+
+    <div class="surgical-poster">
+        <img id="eventPoster" src="" alt="">
+    </div>
+</div>
+
+            /* --- FIX LATER --- */
+
+    <div class="content">
+    <div style="display: flex; border-bottom: 1px solid var(--surface); margin-bottom: 20px;">
+        <div id="tabEvent" onclick="switchTab('date/location')" style="padding: 10px 20px; font-size: 12px; font-weight: 800; border-bottom: 2px solid #FF9500; cursor: pointer;">TIME/LOCATION</div>
+        <div id="tabHost" onclick="switchTab('eventDetails')" style="padding: 10px 20px; font-size: 12px; font-weight: 800; opacity: 0.4; cursor: pointer;">EVENT DETAILS</div>
+        <div id="tabHost" onclick="switchTab('host')" style="padding: 10px 20px; font-size: 12px; font-weight: 800; opacity: 0.4; cursor: pointer;">HOST</div>
+    </div>
+
+    <div id="contentEvent" style="display: block;">
+        <p id="aboutEvent" style="font-size: 14px; line-height: 1.6; max-height: 80px; overflow: hidden; transition: 0.3s;"></p>
+        <button onclick="toggleExpand('aboutEvent', this)" style="background: none; border: none; color: #FF9500; font-weight: 700; font-size: 12px; cursor: pointer; padding: 0;">Read More</button>
+    </div>
+
+    <div id="contentHost" style="display: none;">
+        <p id="aboutHost" style="font-size: 14px; line-height: 1.6; max-height: 80px; overflow: hidden; transition: 0.3s;"></p>
+        <button onclick="toggleExpand('aboutHost', this)" style="background: none; border: none; color: #FF9500; font-weight: 700; font-size: 12px; cursor: pointer; padding: 0;">View Profile</button>
+    </div>
+</div>
+
+<div class="payment-dock">
+    <div id="sliderText" class="slider-track-text"></div>
+    <div class="slider-handle" id="sliderHandle"></div>
+</div>
+
+    <script>
+        // 1. Tab Switching
+function switchTab(tab) {
+    const isEvent = tab === 'event';
+    document.getElementById('contentEvent').style.display = isEvent ? 'block' : 'none';
+    document.getElementById('contentHost').style.display = isEvent ? 'none' : 'block';
+    document.getElementById('tabEvent').style.opacity = isEvent ? '1' : '0.4';
+    document.getElementById('tabEvent').style.borderBottom = isEvent ? '2px solid #FF9500' : 'none';
+    document.getElementById('tabHost').style.opacity = isEvent ? '0.4' : '1';
+    document.getElementById('tabHost').style.borderBottom = isEvent ? 'none' : '2px solid #FF9500';
+}
+
+// 2. Collapsible Info
+function toggleExpand(id, btn) {
+    const el = document.getElementById(id);
+    if (el.style.maxHeight === '80px' || !el.style.maxHeight) {
+        el.style.maxHeight = '1000px';
+        btn.innerText = 'Show Less';
+    } else {
+        el.style.maxHeight = '80px';
+        btn.innerText = 'Read More';
+    }
+}
+
+// 3. Functional Slider
+const handle = document.getElementById('sliderHandle');
+let isDragging = false;
+
+handle.addEventListener('mousedown', () => isDragging = true);
+document.addEventListener('mouseup', (e) => {
+    if (!isDragging) return;
+    isDragging = false;
+    const container = handle.parentElement;
+    const rect = container.getBoundingClientRect();
+    const percent = (e.clientX - rect.left) / rect.width;
+
+    if (percent > 0.8) {
+        handle.style.left = 'calc(100% - 64px)';
+        alert('Payment Confirmed! Ticket sent to your eClear Wallet.');
+    } else {
+        handle.style.left = '8px';
+    }
+});
+
+// Touch support for mobile
+handle.addEventListener('touchstart', () => isDragging = true);
+document.addEventListener('touchend', (e) => {
+    // ... same logic as mouseup ...
+});
+        // Chameleon Logic for the Hero Backing
+        const img = document.getElementById('eventPoster');
+        const hero = document.getElementById('chameleonBacking');
+
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 1; canvas.height = 1;
+            ctx.drawImage(img, 0, 0, 1, 1);
+            const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+            const deepColor = `rgb(${Math.floor(r * 0.2)}, ${Math.floor(g * 0.2)}, ${Math.floor(b * 0.2)})`;
+            hero.style.setProperty('--dynamic-bg', deepColor);
+        };
+        // Trigger if cached
+        if (img.complete) img.onload();
+    </script>
+
+</body>
+</html>

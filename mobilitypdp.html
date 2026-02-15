@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eClear | Vehicle PDP</title>
+    <style>
+        :root {
+            --bg: #0F1014;
+            --card: #1C1E24;
+            --accent: #0000FF;
+            --safe-green: #00FF85;
+        }
+
+        body, html { margin: 0; padding: 0; background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; height: 100%; overflow: hidden; }
+
+        /* --- THE STICKY CONTAINER --- */
+        .pdp-container {
+            height: 100vh;
+            overflow-y: scroll;
+            scroll-behavior: smooth;
+            scrollbar-width: none; /* Hide scrollbar for clean look */
+        }
+        .pdp-container::-webkit-scrollbar { display: none; }
+
+        /* --- STICKY CAR DISPLAY --- */
+        .car-hero-sticky {
+            position: sticky;
+            top: 0;
+            height: 45vh; /* Car stays in the top 45% of screen */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at 50% 70%, rgba(0,0,255,0.15), transparent);
+            z-index: 1;
+        }
+
+        .nav-header {
+            position: absolute; top: 20px; width: 90%;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .car-image {
+            width: 85%;
+            filter: drop-shadow(0 20px 40px rgba(0,0,0,0.6));
+            transition: transform 0.5s ease;
+        }
+
+        /* --- SCROLLING DETAILS CONTENT --- */
+        .details-content {
+            position: relative;
+            z-index: 2; /* Sits on top of the sticky car image */
+            background: var(--card);
+            border-radius: 40px 40px 0 0;
+            padding: 40px 25px 150px 25px; /* Large bottom padding for the fixed bar */
+            box-shadow: 0 -20px 40px rgba(0,0,0,0.5);
+            min-height: 80vh;
+        }
+
+        .title-section h1 { font-size: 28px; margin: 0; }
+        .title-section span { font-weight: 300; opacity: 0.5; }
+
+        .description { font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.6; margin: 25px 0; }
+
+        /* Spec Chips from your Dribbble Ref */
+        .specs-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 30px 0; }
+        .spec-card {
+            background: #fff; color: #000; padding: 20px 10px; border-radius: 24px;
+            display: flex; flex-direction: column; gap: 8px;
+        }
+        .spec-card .icon { font-size: 18px; opacity: 0.8; }
+        .spec-card .label { font-size: 10px; font-weight: 800; opacity: 0.4; text-transform: uppercase; }
+        .spec-card .value { font-size: 16px; font-weight: 900; }
+
+        /* --- FIXED BOTTOM ACTION BAR --- */
+        .fixed-action-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px 25px 30px;
+            background: linear-gradient(to top, var(--bg) 70%, transparent);
+            box-sizing: border-box;
+            z-index: 10;
+        }
+
+        .price-info { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 15px; padding: 0 10px; }
+        .price-info .label { font-size: 12px; opacity: 0.5; }
+        .price-info .amt { font-size: 24px; font-weight: 800; }
+
+        .slide-to-pay {
+            width: 100%; height: 64px; background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 32px;
+            display: flex; align-items: center; position: relative;
+            backdrop-filter: blur(15px);
+        }
+
+        .slider-handle {
+            width: 54px; height: 54px; background: var(--safe-green);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            position: absolute; left: 5px; cursor: grab; z-index: 2;
+        }
+
+        .slider-text { width: 100%; text-align: center; font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; }
+
+    </style>
+</head>
+<body>
+
+    <div class="pdp-container">
+        <div class="car-hero-sticky">
+            <div class="nav-header">
+                <button onclick="history.back()" style="background:none; border:none; color:#fff; font-size:20px;">✕</button>
+                <div style="font-size: 18px; font-weight: 600;">Car Details</div>
+                <button style="background:none; border:none; color:#fff; font-size:20px;">♡</button>
+            </div>
+            <img src="assets/mobility/bentley black car.png" class="car-image" id="pdpImage">
+        </div>
+
+        <div class="details-content">
+            <div class="title-section">
+                <h1>Bentley <span>Continental</span></h1>
+            </div>
+
+            <p class="description">
+                Engineered for the elite. The Continental GT combines eClear's "Floating Ride" technology with maximum-security features including reinforced glass and satellite tracking.
+            </p>
+
+            <div class="specs-row">
+                <div class="spec-card">
+                    <span class="icon">🏎️</span>
+                    <span class="label">Top Speed</span>
+                    <span class="value">208<small>mph</small></span>
+                </div>
+                <div class="spec-card">
+                    <span class="icon">👥</span>
+                    <span class="label">Capacity</span>
+                    <span class="value">4<small>Seats</small></span>
+                </div>
+                <div class="spec-card">
+                    <span class="icon">⚡</span>
+                    <span class="label">Charging</span>
+                    <span class="value">240<small>V</small></span>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 40px;">Vehicle Highlights</h3>
+            <ul style="color: rgba(255,255,255,0.4); font-size: 13px; line-height: 2;">
+                <li>Adaptive Cruise Control</li>
+                <li>Night Vision Chauffeur Assist</li>
+                <li>Biometric Start-up System</li>
+                <li>Full Grain Leather Interior</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="fixed-action-bar">
+        <div class="price-info">
+            <span class="label">Rental Price</span>
+            <span class="amt">₦450,000<small style="font-size:12px; font-weight:400; opacity:0.5;"> / Day</small></span>
+        </div>
+        <div class="slide-to-pay">
+            <div class="slider-handle" id="pdpHandle">
+                <img src="https://img.icons8.com/ios-filled/20/000000/lock.png"/>
+            </div>
+            <span class="slider-text">Slide to Book Now</span>
+        </div>
+    </div>
+
+    <script>
+        const handle = document.getElementById('pdpHandle');
+        const container = document.querySelector('.pdp-container');
+        const carImg = document.getElementById('pdpImage');
+
+        // Logic to shrink/fade car on scroll
+        container.addEventListener('scroll', () => {
+            let scrolled = container.scrollTop;
+            let scale = 1 - (scrolled / 1000);
+            if(scale < 0.7) scale = 0.7;
+            carImg.style.transform = `scale(${scale})`;
+            carImg.style.opacity = 1 - (scrolled / 400);
+        });
+
+        // Basic Slide Logic
+        let startX = 0;
+        handle.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; });
+        handle.addEventListener('touchmove', (e) => {
+            let move = e.touches[0].clientX - startX;
+            if (move > 0 && move < 260) {
+                handle.style.left = (move + 5) + 'px';
+                if (move > 240) {
+                    handle.style.background = '#fff';
+                    alert("Confirmed! Processing eClear Wallet...");
+                }
+            }
+        });
+        handle.addEventListener('touchend', () => {
+            handle.style.transition = 'left 0.3s ease';
+            handle.style.left = '5px';
+            setTimeout(() => handle.style.transition = 'none', 300);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eClear | Luxury Mobility</title>
+    <style>
+        :root { 
+            --bg: #0F1014; 
+            --accent: #0000FF; 
+            --glow: rgba(0, 0, 255, 0.2); 
+            --drive-speed: 0.8s; 
+        }
+        
+        body, html { margin: 0; padding: 0; height: 100%; font-family: 'Inter', sans-serif; background: var(--bg); color: #fff; overflow: hidden; }
+
+        .hero-stage {
+            height: 100vh; width: 100%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: relative;
+            background: radial-gradient(circle at 50% 50%, var(--glow), var(--bg));
+            transition: background 1.2s ease;
+        }
+
+        header { 
+            position: absolute; top: 0; width: 100%; box-sizing: border-box;
+            padding: 40px; display: flex; justify-content: space-between; align-items: center; z-index: 100;
+        }
+
+        .intent-toggle {
+            position: absolute; top: 110px; left: 50%; transform: translateX(-50%);
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            padding: 4px; border-radius: 30px; display: flex; gap: 5px; z-index: 100;
+        }
+        .toggle-btn {
+            padding: 6px 14px; border-radius: 25px; font-size: 10px; font-weight: 700;
+            cursor: pointer; transition: 0.3s; border: none; background: transparent; color: #555;
+        }
+        .toggle-btn.active { background: #fff; color: #000; }
+
+        /* --- THE CAR (Your preferred placement) --- */
+        .car-container { 
+            width: 100%; max-width: 1100px; height: 300px; 
+            position: relative; display: flex; align-items: center; justify-content: center;
+            z-index: 10; margin-top: -50px; 
+        }
+        .car-img {
+            width: 85%; height: auto; position: absolute;
+            transition: transform var(--drive-speed) cubic-bezier(0.23, 1, 0.32, 1), opacity 0.4s;
+            filter: drop-shadow(0 40px 60px rgba(0,0,0,0.9));
+        }
+        /* Removed Scale to prevent expansion bugs */
+        .drive-in { transform: translateX(0); opacity: 1; }
+        .drive-out { transform: translateX(150%); opacity: 0; }
+        .drive-prepare { transform: translateX(-150%); opacity: 0; }
+
+        /* --- THE LOGOS (Your preferred placement) --- */
+        .brand-nav-wrapper {
+            width: 100%; position: absolute; bottom: 40%; z-index: 20;
+        }
+        .brand-nav {
+            display: flex; gap: 45px; overflow-x: auto; scrollbar-width: none;
+            padding: 0 calc(50% - 40px); 
+        }
+        .brand-nav::-webkit-scrollbar { display: none; }
+        .logo-item {
+            min-width: 80px; height: 50px; flex-shrink: 0; filter: grayscale(1) brightness(0.2); opacity: 0.3; transition: 0.5s;
+        }
+        .logo-item.active { filter: grayscale(0) brightness(1.2); opacity: 1; transform: scale(1.1); }
+        .logo-item img { width: 100%; height: 100%; object-fit: contain; }
+
+        /* --- THE TEXT (Buffer applied for iPhone Pro) --- */
+        .lower-content {
+            position: absolute; bottom: 40px; left: 40px; right: 40px;
+            display: flex; justify-content: space-between; align-items: flex-end;
+            z-index: 50; 
+            padding-top: 20px; /* Buffer against logo interference */
+        }
+
+        .text-block { max-width: 60%; overflow: hidden; }
+        .text-block h2 { font-size: 38px; margin: 0 0 10px 0; line-height: 1.1; letter-spacing: -1px; }
+        .text-block p { font-size: 14px; opacity: 0.5; margin: 0; line-height: 1.5; }
+
+        #headline, #subheadline {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+        }
+        .text-hidden { opacity: 0 !important; transform: translateY(20px); }
+
+        .lets-go-btn {
+            background: #fff; color: #000; padding: 12px 30px; border-radius: 40px;
+            font-weight: 900; text-transform: uppercase; font-size: 12px;
+            cursor: pointer; border: none; position: relative; overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 1;
+        }
+        .lets-go-btn::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 0%; height: 100%;
+            background: rgba(0, 0, 0, 0.1); z-index: -1;
+        }
+        .btn-launching::before { animation: launchFill 2.8s linear forwards; }
+        @keyframes launchFill { from { width: 0%; } to { width: 100%; } }
+        .btn-launching { pointer-events: none; opacity: 0.8; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1 style="margin:0; font-size: 20px; font-weight: 900; letter-spacing: -1px;">eClear</h1>
+        <div style="background: rgba(255,255,255,0.05); padding: 8px 20px; border-radius: 40px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px);">
+            <b style="font-size: 16px;">₦45,000.50</b>
+        </div>
+    </header>
+
+    <div class="intent-toggle">
+        <button class="toggle-btn active" onclick="setIntent('rent', this)">RENT</button>
+        <button class="toggle-btn" onclick="setIntent('buy', this)">BUY</button>
+    </div>
+
+    <section class="hero-stage" id="heroStage">
+        <div class="car-container" id="carContainer"></div>
+
+        <div class="brand-nav-wrapper">
+            <div class="brand-nav" id="brandNav"></div>
+        </div>
+
+        <div class="lower-content">
+            <div class="text-block">
+                <h2 id="headline">Premium cars.<br>Enjoy the luxury</h2>
+                <p id="subheadline">Premium and prestige car hourly rental.<br>Experience the thrill at a lower price.</p>
+            </div>
+            <button class="lets-go-btn" id="launchBtn" onclick="launchSequence()">BOOK NOW!</button>
+        </div>
+    </section>
+
+<script>
+    const mobilityDB = [
+        { brand: 'bentley', file: 'bentley black car.png', color: '#004225' },
+        { brand: 'rollsroyce', file: 'rolls royce white car.png', color: '#6e4a9e' },
+        { brand: 'lexus', file: 'lexus car.png', color: '#444444' },
+        { brand: 'ferrari', file: 'ferrarri car.png', color: '#ff0000' },
+        { brand: 'benz', file: 'gwagon black car.png', color: '#111111' },
+        { brand: 'toyota', file: 'prado white car.png', color: '#FFFFFF' }
+    ];
+
+    const copy = {
+        rent: { h: "Premium cars.<br>Enjoy the luxury", s: "Premium and prestige car hourly rental.", btn: "BOOK NOW!" },
+        buy: { h: "Own the Elite.<br>Your dream, delivered.", s: "Invest in permanent prestige.", btn: "BUY NOW" }
+    };
+
+    let currentIntent = 'rent';
+    let isLocked = false;
+    const revSound = new Audio('assets/sounds/rev.mp3');
+
+    function setIntent(type, el) {
+        if (currentIntent === type) return;
+        currentIntent = type;
+        const h = document.getElementById('headline');
+        const s = document.getElementById('subheadline');
+        const btn = document.getElementById('launchBtn');
+
+        document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+        el.classList.add('active');
+
+        h.classList.add('text-hidden');
+        s.classList.add('text-hidden');
+
+        setTimeout(() => {
+            h.innerHTML = copy[type].h;
+            s.innerHTML = copy[type].s;
+            btn.innerText = copy[type].btn;
+            h.classList.remove('text-hidden');
+            s.classList.remove('text-hidden');
+        }, 400);
+    }
+
+    function launchSequence() {
+        const btn = document.getElementById('launchBtn');
+        revSound.currentTime = 0;
+        revSound.play();
+        if (window.navigator.vibrate) window.navigator.vibrate([50, 100, 50, 800]); 
+        
+        btn.classList.add('btn-launching');
+        btn.innerText = "STARTING ENGINE...";
+
+        setTimeout(() => {
+            document.body.style.opacity = '0';
+            document.body.style.transition = 'opacity 0.6s ease';
+            setTimeout(() => {
+                window.location.href = currentIntent === 'buy' ? 'buy_catalog.html' : 'mobility2.html';
+            }, 600);
+        }, 2800);
+    }
+
+    const nav = document.getElementById('brandNav');
+    function init() {
+        const logoSet = mobilityDB.map(car => `
+            <div class="logo-item" data-brand="${car.brand}">
+                <img src="assets/logos/${car.brand} logo.webp" alt="${car.brand}">
+            </div>
+        `).join('');
+        nav.innerHTML = logoSet + logoSet + logoSet;
+        nav.addEventListener('click', (e) => {
+            const item = e.target.closest('.logo-item');
+            if (item && !isLocked) updateSelection(item.getAttribute('data-brand'), item);
+        });
+        updateSelection('bentley', nav.querySelector('[data-brand="bentley"]'));
+        nav.scrollLeft = nav.scrollWidth / 3;
+    }
+
+    function updateSelection(brandName, element) {
+        isLocked = true;
+        document.querySelectorAll('.logo-item').forEach(l => l.classList.remove('active'));
+        element.classList.add('active');
+        element.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+        const car = mobilityDB.find(c => c.brand === brandName);
+        triggerDriveIn(car);
+        setTimeout(() => { isLocked = false; }, 800);
+    }
+
+    function triggerDriveIn(car) {
+        const container = document.getElementById('carContainer');
+        container.querySelectorAll('.car-img').forEach(img => {
+            img.classList.add('drive-out');
+            setTimeout(() => img.remove(), 800);
+        });
+        const newImg = document.createElement('img');
+        newImg.src = `assets/mobility/${car.file}`;
+        newImg.className = 'car-img drive-prepare';
+        container.appendChild(newImg);
+        setTimeout(() => {
+            document.getElementById('heroStage').style.setProperty('--glow', car.color + '25');
+            newImg.classList.remove('drive-prepare');
+            newImg.classList.add('drive-in');
+        }, 50);
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

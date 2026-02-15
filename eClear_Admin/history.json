@@ -1,0 +1,15 @@
+[
+    {
+        "timestamp": "2026-02-14T19:52:52.889791",
+        "total_pulled": 49,
+        "state_breakdown": {
+            "Lagos": 10,
+            "Abuja": 10,
+            "Port Harcourt": 10,
+            "Kano": 3,
+            "Ibadan": 10,
+            "Enugu": 6
+        },
+        "type": "PUSH_TO_CACHE"
+    }
+]

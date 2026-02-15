@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eClear | Events Calendar</title>
+    <style>
+        :root {
+            --bg: #000000;
+            --brand: #FF8C00;
+            --apple-gray: #8E8E93;
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            background: var(--bg);
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+            margin: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- SURGICAL HEADER: TIGHT & HIGH --- */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(25px);
+            z-index: 1000;
+            padding: 12px 0; /* Tighter padding for top-aligned look */
+            border-bottom: 0.5px solid var(--glass-border);
+        }
+
+        .header-wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 25px;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+        }
+
+        .header-title {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            text-align: center;
+            line-height: 1;
+        }
+
+        .nav-icons { justify-self: end; display: flex; gap: 20px; font-size: 18px; }
+        .back-btn { justify-self: start; cursor: pointer; font-size: 26px; font-weight: 200; line-height: 1; }
+
+        /* --- SCROLLER --- */
+        #calendar-scroller {
+            margin-top: 80px; 
+            padding: 0 20px;
+        }
+
+        .month-block {
+            max-width: 1000px;
+            margin: 0 auto 40px auto;
+        }
+
+        .month-name {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .today-ticker {
+            font-size: 13px;
+            color: var(--brand);
+            margin: 4px 0 15px 0;
+            min-height: 15px;
+            font-weight: 500;
+        }
+
+        .month-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            margin-bottom: 10px;
+            opacity: 0.3;
+        }
+
+        .weekday-label { text-align: center; font-size: 10px; font-weight: 800; }
+
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(7, 1fr); 
+            gap: 5px; 
+        }
+
+        .date-cell {
+            aspect-ratio: 1/1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            position: relative;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+
+        .date-cell:hover { background: rgba(255,255,255,0.05); }
+
+        /* --- SUBTLE DOT TICKER (•) --- */
+        .dot-ticker {
+            font-size: 14px;
+            line-height: 0;
+            margin-top: 4px;
+            color: var(--apple-gray);
+        }
+
+        .scroll-top-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 45px;
+            height: 45px;
+            background: var(--brand);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.3s;
+            z-index: 1100;
+        }
+        .scroll-top-btn.visible { opacity: 1; visibility: visible; }
+        .arrow-up { width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-bottom: 7px solid black; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-wrap">
+        <div class="back-btn" onclick="history.back()">‹</div> 
+        <div class="header-title">Events Calendar</div>
+        <div class="nav-icons">
+            <span>🔍</span>
+            <span>🎨</span>
+            <span onclick="goToList()">📋</span>
+            <span style="color: var(--brand);">＋</span>
+        </div>
+    </div>
+</header>
+
+<div id="calendar-scroller"></div>
+
+<div class="scroll-top-btn" id="topBtn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+    <div class="arrow-up"></div>
+</div>
+
+<script>
+    const today = new Date();
+    const todayKey = today.getFullYear() + "-" + String(today.getMonth() + 1).padStart(2, '0') + "-" + String(today.getDate()).padStart(2, '0');
+
+    const monthThemes = { 1: "❤️", 9: "🇳🇬", 11: "🎄" };
+    const globalEvents = {
+        "2026-02-14": "Valentine's Day ❤️",
+        "2026-10-01": "Nigeria Independence Day 🎆",
+        "2026-12-25": "Christmas Day 🎄"
+    };
+
+    const scroller = document.getElementById('calendar-scroller');
+    const topBtn = document.getElementById('topBtn');
+
+    window.onscroll = () => { (window.pageYOffset > 400) ? topBtn.classList.add('visible') : topBtn.classList.remove('visible'); };
+
+    function goToList() {
+        // This will trigger the List View page with the ALL | PERSONAL menu
+        alert("Navigating to List View...\nMenu: [ ALL | PERSONAL ]");
+    }
+
+    function buildMonth(year, monthIndex) {
+        const date = new Date(year, monthIndex, 1);
+        const monthName = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(date);
+        const monthEmoji = monthThemes[monthIndex] || "";
+        
+        const section = document.createElement('div');
+        section.className = 'month-block';
+        
+        let tickerHTML = (globalEvents[todayKey] && new Date(todayKey).getMonth() === monthIndex) ? `Today: ${globalEvents[todayKey]}` : "";
+
+        section.innerHTML = `
+            <div class="month-name">${monthName.toUpperCase()} ${year} ${monthEmoji}</div>
+            <div class="today-ticker">${tickerHTML}</div>
+            <div class="month-weekdays">
+                <div class="weekday-label">S</div><div class="weekday-label">M</div>
+                <div class="weekday-label">T</div><div class="weekday-label">W</div>
+                <div class="weekday-label">T</div><div class="weekday-label">F</div>
+                <div class="weekday-label">S</div>
+            </div>
+        `;
+        
+        const grid = document.createElement('div');
+        grid.className = 'grid';
+
+        const firstDay = new Date(year, monthIndex, 1).getDay();
+        const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+
+        for (let i = 0; i < firstDay; i++) { grid.appendChild(document.createElement('div')); }
+
+        for (let d = 1; d <= daysInMonth; d++) {
+            const dKey = year + "-" + String(monthIndex + 1).padStart(2, '0') + "-" + String(d).padStart(2, '0');
+            const cell = document.createElement('div');
+            cell.className = 'date-cell';
+            cell.onclick = goToList; // Every date click takes them to List View
+            
+            let content = `<span>${d}</span>`;
+            if (globalEvents[dKey]) {
+                content += `<div class="dot-ticker">•</div>`;
+            }
+            
+            cell.innerHTML = content;
+            grid.appendChild(cell);
+        }
+
+        section.appendChild(grid);
+        scroller.appendChild(section);
+    }
+
+    for (let i = 0; i < 12; i++) { buildMonth(2026, 1 + i); }
+</script>
+</body>
+</html>

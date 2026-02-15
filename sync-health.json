@@ -1,0 +1,6 @@
+{
+    "status": "Critical",
+    "last_sync": "2026-02-15T10:49:41.378281",
+    "events_pulled": 0,
+    "error": "400 Client Error: BAD REQUEST for url: https://www.eventbriteapi.com/v3/destination/events/?event_search.location.address=Lagos&expand=venue"
+}

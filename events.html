@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' data: https: http:; connect-src 'self' https: https://ipapi.co; font-src 'self' data: https:; img-src 'self' data: https: http: blob:;">
+    <title>eClear | Global Events</title>
+    <style>
+        :root {
+            --card-width: 310px; 
+            --img-part-height: 180px;
+            --bg-color: #F9FAFF;
+            --text-main: #000000;
+            --brand-orange: #FF8C00;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #080808;
+                --text-main: #FFFFFF;
+            }
+        }
+
+        body { 
+            margin: 0; 
+            font-family: 'Inter', -apple-system, sans-serif; 
+            background: var(--bg-color); 
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        header {
+            padding: 20px 40px;
+            background: var(--bg-color);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(128,128,128,0.1);
+        }
+
+        .search-input {
+            width: 100%; padding: 14px 20px; border-radius: 12px;
+            border: 1px solid rgba(128,128,128,0.2); background: rgba(128,128,128,0.05);
+            color: var(--text-main); font-size: 14px; outline: none; box-sizing: border-box;
+        }
+
+        .events-grid { 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--card-width), 1fr)); 
+            gap: 40px 30px; margin-top: 20px;
+        }
+
+        .event-card { width: 100%; cursor: pointer; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .event-card:hover { transform: translateY(-5px); }
+
+        .surgical-poster-wrapper {
+            position: relative; width: 100%; height: var(--img-part-height); margin-bottom: 15px;
+            clip-path: polygon(10% 0, 100% 0, 100% 85%, 85% 100%, 0 100%, 0 10%);
+            background: #111;
+        }
+        .main-poster { width: 100%; height: 100%; object-fit: cover; }
+        
+        .status-badge {
+            position: absolute; top: 10px; right: 10px; background: #FFD700; color: #000;
+            font-size: 9px; font-weight: 900; padding: 3px 8px; border-radius: 3px; z-index: 2;
+        }
+
+        #locationModal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 3000;
+            align-items: center; justify-content: center;
+        }
+        #locationModal.active { display: flex; }
+        .modal-content {
+            background: var(--bg-color); padding: 30px; border-radius: 24px;
+            width: 90%; max-width: 400px; text-align: center; border: 1px solid rgba(128,128,128,0.2);
+        }
+        .loc-option {
+            padding: 15px; margin: 10px 0; border-radius: 12px; border: 1px solid rgba(128,128,128,0.1);
+            cursor: pointer; font-weight: 700; transition: all 0.2s;
+        }
+        .loc-option:hover { background: var(--brand-orange); color: white; }
+    </style>
+</head>
+<body>
+
+<div id="viewDiscovery">
+    <header>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+            <div id="triggerLocation" onclick="toggleLocationModal(true)" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                <div style="width: 35px; height: 35px; background: rgba(128,128,128,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center;">📍</div>
+                <div>
+                    <span style="font-size: 8px; text-transform: uppercase; opacity: 0.5; font-weight: 800; display: block;">Current Location</span>
+                    <span id="currentCity" style="font-size: 14px; font-weight: 700;">Lagos</span>
+                </div>
+            </div>
+            <div style="font-size: 20px; cursor: pointer;">📅</div>
+        </div>
+
+        <h1 style="font-size: 24px; margin: 0;">Hello, Explorer</h1>
+        <p style="font-size: 12px; opacity: 0.6; margin-bottom: 20px;">Showing <span id="eventCountDisplay">0</span> events</p>
+        <input type="text" id="searchInput" class="search-input" placeholder="Search events in Lagos, New York, or Abuja...">
+    </header>
+
+    <main id="mainTimeline" style="padding: 20px 40px;">
+        </main>
+</div>
+
+<div id="locationModal">
+    <div class="modal-content">
+        <h2 style="margin-top: 0;">Switch Location</h2>
+        <div class="loc-option" onclick="setManualLocation('Lagos')">🇳🇬 Lagos, Nigeria</div>
+        <div class="loc-option" onclick="setManualLocation('Abuja')">🇳🇬 Abuja, Nigeria</div>
+        <div class="loc-option" onclick="setManualLocation('London')">🇬🇧 London, UK</div>
+        <div class="loc-option" onclick="setManualLocation('New York')">🇺🇸 New York, USA</div>
+        <button onclick="toggleLocationModal(false)" style="margin-top: 15px; border: none; background: none; color: var(--brand-orange); cursor: pointer; font-weight: bold;">Cancel</button>
+    </div>
+</div>
+
+<script>
+    let allEventsRaw = [];
+    let currentActiveLocation = localStorage.getItem('eclear_pref_loc') || "Lagos";
+
+    window.onload = () => {
+        document.getElementById('currentCity').innerText = currentActiveLocation;
+        
+        // Initializing the fetch process
+        fetchLiveEvents();
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = allEventsRaw.filter(ev => 
+                ev.title.toLowerCase().includes(term) || 
+                (ev.address && ev.address[0].toLowerCase().includes(term))
+            );
+            renderGrid(filtered);
+        });
+    };
+
+    async function fetchLiveEvents() {
+        const timeline = document.getElementById('mainTimeline');
+        timeline.innerHTML = "<p style='text-align:center; padding: 50px; opacity: 0.5;'>Connecting to eClear Discovery...</p>";
+
+        try {
+            // The fetch now looks for your renamed file
+            // Date.now() prevents GitHub from serving a stale cached version
+            const response = await fetch('events.json?v=' + Date.now());
+            
+            if (!response.ok) throw new Error("Could not find events.json");
+
+            allEventsRaw = await response.json();
+            console.log("Data synced successfully:", allEventsRaw);
+            applyFilters();
+            
+        } catch (error) {
+            console.error("Discovery Error:", error);
+            timeline.innerHTML = `
+                <div style="text-align:center; padding:50px; opacity:0.5;">
+                    <p>Feed Unavailable</p>
+                    <small>Check that events.json is in the eClear_App folder on GitHub.</small>
+                </div>`;
+        }
+    }
+
+    function setManualLocation(loc) {
+        currentActiveLocation = loc;
+        document.getElementById('currentCity').innerText = loc;
+        localStorage.setItem('eclear_pref_loc', loc);
+        toggleLocationModal(false);
+        applyFilters();
+    }
+
+    function toggleLocationModal(show) {
+        document.getElementById('locationModal').classList.toggle('active', show);
+    }
+
+    function applyFilters() {
+        const city = currentActiveLocation.toLowerCase();
+        let filtered = allEventsRaw.filter(ev => {
+            const addr = (ev.address && ev.address[0] || "").toLowerCase();
+            const title = (ev.title || "").toLowerCase();
+            return addr.includes(city) || title.includes(city);
+        });
+
+        // Global Mode fallback
+        if (filtered.length === 0) filtered = allEventsRaw;
+        
+        document.getElementById('eventCountDisplay').innerText = filtered.length;
+        renderGrid(filtered);
+    }
+
+    function renderGrid(events) {
+        const timeline = document.getElementById('mainTimeline');
+        if (!events || events.length === 0) return;
+
+        timeline.innerHTML = `<div class="events-grid">${events.map(ev => `
+            <div class="event-card">
+                <div class="surgical-poster-wrapper">
+                    <img src="${ev.thumbnail}" onerror="this.src='https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=500'" class="main-poster">
+                    <div class="status-badge">${ev.access_type || 'Access'}</div>
+                </div>
+                <div style="padding: 0 5px;">
+                    <span style="color: var(--brand-orange); font-size: 10px; font-weight: 800; text-transform: uppercase;">${ev.source || 'Verified'}</span>
+                    <h3 style="font-size: 14px; margin: 5px 0; color: var(--text-main); line-height: 1.2;">${ev.title}</h3>
+                    <p style="font-size: 11px; opacity: 0.6;">📍 ${ev.address ? ev.address[0] : 'Location TBA'}</p>
+                </div>
+            </div>
+        `).join('')}</div>`;
+    }
+</script>
+</html>
